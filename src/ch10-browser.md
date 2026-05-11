@@ -1,3 +1,91 @@
-# ch10-browser
+# The Browser as the New Shell
 
-Stub.
+This chapter is about how Unix won a second time. Not by porting itself to the web — although it did that, and the web's servers are overwhelmingly Linux — but by establishing, in the web, an architecture that recapitulates Unix's design choices one level up. The web took Unix's bets — files-as-everything, plain text as interchange, small composable tools, the user as glue — and remade them as URLs-as-everything, HTML/JSON as interchange, microservices, and the user as cross-application orchestrator. The result, by 2026, is a second universal substrate that has the same kinds of virtues and the same kinds of costs as the first.
+
+The reason this matters for the book is that the web is now the layer where most users actually interact with computers, even on Unix-derived workstations. The choices the web made are at least as load-bearing as the choices Unix made, for the working experience of most people. And the alternatives the web made invisible — the alternatives a Genera or a Smalltalk environment might have suggested — are now invisible for a second time, at a second layer. The cost compounds.
+
+## The URL as the new file path
+
+The single architectural decision that made the web universal was Tim Berners-Lee's choice, in 1990, to use a unified resource identifier — what became the URL — to name everything the system could refer to. A URL has a scheme (`http`, `https`, `ftp`, `mailto`, `file`, others), a host, a path, and optional query parameters. From the user's perspective, a URL is a string that you can paste into a browser and get back a representation of *something*: a document, an image, a search result, a video, a form to fill out, an application.
+
+The genius of the URL is the same as the genius of the Unix file path: it is a *universal naming scheme that any program can produce or consume*. A web browser does not have to know what kind of thing a URL refers to until it fetches it; a server does not have to know what the client is going to do with the response. The URL is the unit of reference that makes the entire network composable.
+
+The cost of the URL is the same as the cost of the Unix file path: it does not say anything about *what* the thing being referred to is. The browser has to guess — by examining the response's `Content-Type` header, by sniffing the bytes, by inspecting the URL's extension. The web has, over time, accumulated dozens of heuristics for figuring out what a URL refers to, and the heuristics fail in interesting ways. The most familiar version of this is the MIME type system, which is the web's plain-text-equivalent solution to the problem Unix solved by making everything a byte stream: a string identifier that the parties involved agree, by convention, names the format.
+
+The URL also inherited Unix's *hierarchical* assumption. Paths are slash-separated. The hierarchy is conventional rather than mandatory — a server can serve any URL it likes regardless of structure — but the structure is what users expect and what crawlers, caches, and indexing systems assume. A URL is, structurally, a path through someone else's namespace, and the namespace is administered by the host. The interplay between URLs and DNS, where DNS is the namespace of hosts and URLs are the namespace of resources within a host, is a two-level naming scheme that has, by 2026, become as ambient as the Unix file system was by 1990.
+
+## HTML, JSON, and plain text as interchange
+
+The second architectural choice the web made was that documents are plain text. HTML in particular is a textual markup language: tags written in angle brackets, attributes as key-value strings, content as text between tags. The choice was deliberate. Berners-Lee chose textual markup for many of the same reasons Unix chose plain text — universal accessibility, ease of parsing, ability to write and read without special tools.
+
+The cost of the choice was the same too. HTML's structure is poorly delineated by its serialization. Browsers have to forgive ill-formed HTML on a vast scale; the modern HTML5 parsing rules are explicitly designed to produce a useful tree out of essentially any sequence of bytes, in the same way that Unix programs are designed to forgive the wide variations in how text files end lines. The parser is the place where the world's malformed inputs get smoothed over, and the parser is enormous — the HTML5 spec's parsing algorithm is one of the largest specifications in active use.
+
+JSON is the web's later, simpler answer for data interchange. JSON came from JavaScript, and it took over from XML in the late 2000s and 2010s because it was significantly easier to produce and consume. JSON is the web's `cat`-and-grep-friendly format: a text format with enough structure to encode trees of typed values, and few enough rules that any language can parse and produce it. JSON is to the modern web what plain text was to early Unix: the default exchange format that everyone agrees to.
+
+The fact that both HTML and JSON are plain text inherits one specific Unix property: the user can pipe them. A `curl` call piped into `jq` and then into another command is, structurally, a Unix pipeline operating on web data. The shell-shaped composition that Unix's `|` enabled is now a normal way to work with web APIs. This is not coincidence; the people building these tools were Unix people, and they reached for Unix gestures because Unix gestures were what they had.
+
+## Microservices as small tools
+
+The web took Unix's small-tools-composed approach and elevated it to a network-distributed pattern: *microservices*. The idea, current in the 2010s and now ambient by 2026, is that an application should be decomposed into a set of services each doing one thing well, communicating via lightweight protocols (HTTP, gRPC, message queues), composable into larger applications by configuration rather than recompilation.
+
+This is, in important ways, the same bet Unix made about tools: build small things, let them be combined, do not try to build large integrated systems. The bet has the same trade-offs at the larger scale. Microservice architectures have demonstrably enabled certain kinds of large-scale software engineering — companies with thousands of developers can ship without coordinating tightly, services can be replaced individually, scaling can be applied selectively. They have also produced certain kinds of frictions: the inter-service contracts must be carefully managed, the failure modes multiply, observability becomes a major operational discipline, latency between services becomes a design constraint, and the cognitive load of understanding a large microservice system can exceed that of understanding an equivalent monolith.
+
+The pattern of trade-offs is identical to what Unix found with small-tools composition. When the small pieces are well-designed and the composition is clean, the leverage is enormous. When the pieces are poorly aligned and the seams are rough, the cost of integration eats the benefit of decomposition. Microservices are, in this sense, Unix pipes applied to teams and machines instead of to commands and data.
+
+## The user as glue, again
+
+The web's user, like the Unix user, is the glue between systems that were not built to talk to each other. The user has multiple browser tabs open. The user copies data from one site, pastes it into another, manually summarizes what one application told them so they can hand it to a different application, juggles authentication credentials across services, mentally tracks which window is showing which application's state. The user, in 2026, is doing the same job the Unix user was doing in 1985: orchestrating composition that the systems do not orchestrate themselves.
+
+This is one of the under-discussed costs of the web's victory. The Smalltalk and Lisp Machine traditions had aimed to *take this work off the user* by providing a single integrated environment in which objects from different "applications" could interact directly. The web's federation model — where each application is a separate site, with its own data model, its own session, its own authentication — guarantees that the user remains the only entity that can integrate across applications. The data is somewhere; the integration has to happen somewhere; in the absence of system-level integration, the integration happens in the user's head and through the user's hands.
+
+The industry has produced partial responses. APIs that let services call each other directly are one. Single sign-on systems that let one authentication carry across services are another. Browser extensions and userscripts that let the user automate cross-site behavior are a third. Each of these is a useful tool. None of them changes the architectural fact that the web is a federation of sites, and that the user is the entity responsible for synthesizing what the sites do not synthesize.
+
+This is the same problem Unix had, scaled up. Unix tools are composable because they share a single substrate (the file system, the pipe). Web sites are composable in the same way only at the URL level; below that, each site has its own data, its own UI, its own conventions. The web is more federation, less substrate, than Unix is. The user pays the difference.
+
+## The browser as kernel
+
+The browser, in 2026, is structurally an operating system. It manages multiple concurrent applications (tabs). It provides a programming model (JavaScript and the web platform). It mediates access to system resources (cameras, microphones, GPUs, storage, the network) on behalf of those applications. It enforces a security model (the same-origin policy and its descendants, the various permission prompts, the isolation between contexts). It provides UI primitives (DOM elements, CSS, accessibility APIs). It runs on top of a host OS, but for most users, most of the time, the browser is what they are interacting with.
+
+This is a strange position for the browser to be in. Browsers were not designed as operating systems. They were designed as document viewers that grew into application platforms over twenty years. The system properties they have — the security model, the threading model, the storage model, the inter-application communication model — were retrofit onto a foundation that was not built for them. The result is a kind of kernel-in-a-trenchcoat, with many of an OS kernel's responsibilities discharged through evolved-rather-than-designed mechanisms.
+
+The web platform, considered as an OS, has some of the same problems Unix did at its size and some new ones. Like Unix, it has a vast accumulated surface area; modern browser engines are tens of millions of lines of code, and the W3C and WHATWG specifications they implement are enormous. Like Unix, it has multiple competing implementations (Blink/Chromium, Gecko/Firefox, WebKit/Safari) that disagree about edge cases in ways that web developers have to navigate. Unlike Unix, it does not have a single canonical kernel and a single source tree; the relationship between specifications and implementations is contested in a way Linux's is not.
+
+The relevant point for this book is that *the browser is the new layer where the choices Unix made are being reproduced*. Files-as-everything has become URLs-as-everything. Plain text has become HTML and JSON. Small tools have become microservices and embeddable widgets. The user-as-administrator has become the user-as-tab-juggler. The architecture has the same shape and the same costs.
+
+## What the web foreclosed
+
+The interesting cost of the web's victory is the same shape as the interesting cost of Unix's: it foreclosed alternatives at its own layer.
+
+The most direct alternative to the web's federated-sites model was a more *integrated* approach to networked applications. Smalltalk, Genera, and (in a slightly different way) Plan 9 had each proposed that the operating system itself could span machines, that applications could be objects communicating across the network, that the user's environment could be a coherent single space rather than a collection of separately-administered sites. These models were not adopted at the OS level — for the reasons covered in previous chapters — but the same models could have been adopted at the web level. They were not.
+
+The web chose, deliberately, a model where each site was sovereign. There was no global object model. There was no shared data layer. There was no system-wide notion of identity. Each site had to bring its own version of all of these things. The federation was the point. The cost of the federation was that integration could not happen at the system level; it had to happen at the user level.
+
+Alternative architectures existed. CORBA in the 1990s tried to make networked objects a system-level primitive. The various distributed-object systems (Java RMI, .NET Remoting, the early-2000s SOAP and WS-* stack) tried similar things. Each of them produced complex specifications, large vendor implementations, and modest adoption, because each of them required everyone in the system to agree to a common object model. The web, by requiring nothing except HTTP and HTML, lowered the coordination cost and won by default.
+
+The cost is now ambient. A user in 2026 has accounts on dozens of sites, each with separate data, separate identity, separate UI conventions. The integration between those sites is provided by the user's labor and, increasingly, by intermediaries (oAuth providers, password managers, browser autofill) that paper over the federation rather than replacing it. The kind of seamless object-to-object interaction that Smalltalk demonstrated at the desktop level remains absent at the network level, and the gap is wider, not narrower, with each year of accumulated web infrastructure.
+
+## What the web preserved
+
+It would be wrong to leave this chapter only on what the web foreclosed. The web also preserved, or recovered, some things that the desktop tradition had lost.
+
+*Distribution.* The web's architecture makes networked computation the default. Any web service, by being on the web, is available to any user with a browser. This is a property the Lisp Machines and Smalltalk environments did not have; their distribution was a function of selling hardware and software licenses. The web does not require selling anything; the substrate is open. This has produced more variety of small, weird, useful tools than any prior computing paradigm.
+
+*Live updates.* A web service can be improved by its developers and the improvements take effect immediately for every user. This is closer to the Lisp Machine model of a live, mutable system than the desktop application model was. It is asymmetric — the developers can update; users cannot modify the running system — but the gap between "deploy a change" and "users see the change" has shrunk to near zero, which is more than the desktop tradition managed.
+
+*Discoverability.* Search engines, the URL-as-citable-name, hypertext linking, and the open-ness of the web's protocols have produced a global discoverability fabric that desktop applications never had. The Lisp Machine had introspection within the image; the web has, structurally, a planetary-scale introspection through search and links.
+
+*A second life for the small-tools mentality.* The web's REST APIs, JSON conventions, and shell-callable cURL invocations have produced a kind of pipeline-shaped network computing that has more in common with Unix pipes than with desktop applications. A 2026 developer using `curl`, `jq`, and a shell to compose web services is doing something Doug McIlroy would recognize. The Unix sensibility has not been abandoned by the web; it has been carried up into the network layer.
+
+## The compound cost
+
+The compound observation, after Chapter 1 and this one, is this. Unix won at the operating-system layer in the 1970s and 1980s. Its choices became ambient. Alternative operating systems — the Lisp Machines, Smalltalk environments, Plan 9, Multics descendants, Oberon, BeOS — were marginalized or eliminated. The design space at the OS layer closed.
+
+The web won at the application layer in the 1990s and 2000s. Its choices became ambient. Alternative application architectures — desktop-integrated applications, networked object systems, single-image environments — were marginalized. The design space at the application layer closed.
+
+The two closings are similar in form and they reinforce each other. A 2026 designer who wants to build something genuinely new has to fight against assumptions at *two* layers, not one. The web took Unix's choices and amplified them. The browser is a Unix shell with a graphical surface; the URL is a Unix path with a network prefix; the microservice is a Unix pipe with a network hop. The shape of computation we have is, in this sense, doubly Unix-shaped.
+
+This is not catastrophe. Each of the choices is, in the same sense as before, a *good* choice for the work most users want to do. The web has delivered enormous value. The combination of Unix-at-the-bottom and web-at-the-top has been the substrate for an industry, and the industry has produced things — the internet itself, mass distribution of software, real-time global communication — that would have been hard or impossible on the alternative architectures this book has covered.
+
+It is, however, worth noticing. The pattern of "ambient choice that stops looking like a choice" has happened twice now. Whatever wins next — whatever the equivalent of the 1990s web is for the 2020s and 2030s — will close another part of the design space. The way to retain the ability to see alternatives is to remember that closures have happened before and that the systems that were closed out had real things to teach.
+
+The next chapter looks at Emacs, the most successful surviving carrier of Lisp Machine ideas into the Unix world. Emacs is what happens when one of the alternatives this book has covered manages to disguise itself as a Unix tool and slip past the assumption that Unix tools are what we have. It is not a system. It is, structurally, a system masquerading as an editor, and it is interesting partly because the masquerade has worked for forty-five years.
