@@ -1,0 +1,35 @@
+[book]
+title = "What We Lost When Unix Won"
+authors = ["CloudStreet"]
+description = "A look at the operating systems and computing visions Unix made invisible. Lisp Machines, Smalltalk, Plan 9, Oberon, BeOS — serious proposals for what computing could be, recovered and read in 2026."
+language = "en"
+multilingual = false
+src = "src"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/cloudstreet-dev/What-We-Lost-When-Unix-Won"
+edit-url-template = "https://github.com/cloudstreet-dev/What-We-Lost-When-Unix-Won/edit/main/{path}"
+no-section-label = false
+copy-fonts = true
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.print]
+enable = true
+
+[output.html.search]
+enable = true
+limit-results = 30
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 1
+boost-paragraph = 1
+expand = true
+heading-split-level = 3
+
+[rust]
+edition = "2021"
