@@ -1,3 +1,99 @@
-# ch03-mit-lmi
+# The MIT and LMI Lineage
 
-Stub.
+Genera did not appear out of nowhere. It was the commercial flowering of a research program that had been running at the MIT Artificial Intelligence Laboratory for more than a decade, on hardware that the lab had designed and built itself, on an operating system the lab had written and refused to make conventional, by a group of programmers with strong shared opinions about what computing should feel like. This chapter is about that program, the machines it produced, and the culture from which both of those came.
+
+The reason to spend a chapter on this is not historical completeness. It is that the Lisp Machine, as a category, was the *output* of a specific way of thinking about computers. The category did not survive its makers. To understand why nothing has replaced it — why no group, in 2026, is building anything like a Lisp Machine — it helps to look at the conditions under which it could be built at all, and to be honest about which of those conditions are gone for good.
+
+## The AI Lab and ITS
+
+Through the 1960s and into the 1970s, the MIT AI Lab ran on a small fleet of DEC PDP-6 and PDP-10 machines under a homegrown timesharing system called ITS, the Incompatible Timesharing System. The name was a joke. The system it referred to was not a joke. ITS was the operating environment that produced or supported the early work on Lisp, Emacs, robotics, computer vision, planning, theorem proving, and what was then called artificial intelligence — work that defined much of what those fields became.
+
+ITS was unlike the contemporaneous commercial timesharing systems in several ways that matter for this book.
+
+There were no passwords. To use the machine, you walked up to a terminal and identified yourself by typing your name. The system recorded that you had logged in, but it did not authenticate you. The assumption was that the people in the lab knew each other and that anyone who came in off the street could be dealt with socially.
+
+There was no protection between users. Any user could inspect any other user's running programs. Any user could send any other user a message that would appear on their terminal. Any user could attach to any other user's process and look at its memory. The system supported a pair of commands — OS, "output spy," and IS, "input spy" — that let one user watch another user's terminal session in real time, originally introduced as a debugging aid and culturally tolerated as a kind of open-door policy on computing.
+
+There was no privacy on the file system. Files had owners, but anyone could read, write, or delete anyone else's files. The community managed this with social conventions: you did not delete other people's files unless they had asked you to, and if you wanted privacy for something you took it home on tape.
+
+The system shipped with its sources. Reading the source for ITS was the way you learned how ITS worked. Modifying the source for ITS, when you found a bug or wanted a feature, was a normal user activity. The boundary between "working on ITS" and "using ITS" was porous in the same way it would later be porous on the Lisp Machines.
+
+This was not a sustainable model for computing in general — the moment any of those properties was tried on a system with adversarial users, it failed catastrophically — but it was the model under which the AI Lab worked, and the Lisp Machines inherited their ergonomic shape from it directly. The fundamental ITS assumption was that the user was *trusted*, *competent*, and *interested in the machine itself*. The Lisp Machine, when it came, was designed for the same kind of user.
+
+## Why a Lisp Machine
+
+By the mid-1970s, AI Lab researchers building large Lisp programs on PDP-10s were running into a wall. The PDP-10s were timesharing machines. Compiling a large Lisp program on a busy PDP-10 could take a long time. Garbage collection paused the entire system for everyone. The interactive feel that Lisp afforded on a lightly loaded machine evaporated on a heavily loaded one. The lab had outgrown the hardware.
+
+Two researchers, Tom Knight and Richard Greenblatt, began designing a personal computer that would run Lisp natively. The idea — a single-user machine, dedicated to one researcher, fast at the operations Lisp needed — was, in 1975, novel. Personal computing in any modern sense did not yet exist. The Alto, at PARC, had been running for two years, but the Alto was a research curiosity at Xerox and few people at MIT had used one. The Apple II was still a year from shipping. The IBM PC was six years off. The Knight-Greenblatt machine was a personal computer not because the market wanted one but because the AI Lab needed one.
+
+The first prototype was called CONS. It was followed by a more refined design called CADR. (The names are Lisp jokes. `car` and `cdr` are Lisp primitives; `cons` builds pairs; `cadr` is `car` of `cdr`.) The CADR was the basis of every commercial Lisp Machine that followed. It established the architectural pattern: a microcoded processor that supported tagged data types in hardware, a large physical memory by 1976 standards (initially 256K, expandable), bit-mapped graphics output to a high-resolution display, a mouse, a network connection (initially Chaosnet, the AI Lab's own protocol), and a complete operating environment written almost entirely in Lisp.
+
+By 1979, the CADR was a working machine that several AI Lab researchers were using as their primary workstation. The lab was producing them in modest numbers, but it was still a research project, not a product. Two groups within and adjacent to the lab decided, almost simultaneously, that this was about to change.
+
+## The split: Symbolics and LMI
+
+In 1979 and 1980, two companies were founded to commercialize the Lisp Machine. Richard Greenblatt founded Lisp Machines Incorporated (LMI), with a philosophy that the company should remain close to the MIT research culture, licensing the CADR design and continuing to evolve it without major architectural changes. Russell Noftsker and a group that included Tom Knight, David Moon, Howard Cannon, and several other AI Lab senior staff founded Symbolics, with the intention to build a more aggressive, better-capitalized product company that would design its own successor hardware and pursue commercial customers more directly.
+
+The split was contentious at the time, and it has been romanticized as a culture clash between the pure-research wing and the venture-backed wing of the AI Lab. The romanticization is partly accurate. What it misses is that the underlying technical question was real: should the Lisp Machine evolve incrementally from the CADR, on commodity-adjacent technology, betting that the install base would grow as workstations grew? Or should it leap to a custom processor designed for Lisp from the ground up, on the bet that Lisp's specific needs justified the engineering cost? Symbolics took the second bet, designing the 3600 series and later the Ivory chip. LMI took the first, continuing to ship CADR-derived machines into the early 1980s.
+
+In the short run, Symbolics' bet looked correct. The 3600 was faster than LMI's machines, better-supported, more capable, and built by a company with deeper pockets and a more aggressive sales operation. By 1985, Symbolics had eclipsed LMI in unit shipments and prestige. LMI went bankrupt in 1987. The Symbolics machines became, for the rest of the decade, what most people meant when they said "Lisp Machine."
+
+In the long run, Symbolics' bet looked correct only until commodity hardware caught up. The same custom-CPU strategy that gave Symbolics a performance advantage in 1983 became a cost millstone by 1990, when a Sun workstation running Lucid Common Lisp could do most of what a Symbolics machine could do at a fifth of the price. The 3600's advantage over the CADR had been hardware. The 3600's disadvantage against the SPARC was, eventually, hardware. The lesson, if there is one, is that betting on custom silicon for a niche workload is a strategy with a short useful life unless the niche grows into a mainstream.
+
+Texas Instruments licensed the Symbolics design and produced its own Lisp Machines under the name Explorer, with a microcoded version of the 3600 architecture and, later, a microprocessor implementation called the LMI-Lambda lineage's successor MicroExplorer that ran on a NuBus card inside an Apple Macintosh II. The MicroExplorer is the curious endgame of the Lisp Machine as discrete hardware: a Lisp Machine on a card, hosted by a personal computer that had won the market the Lisp Machines had hoped to win.
+
+## What the lineage shared
+
+All of these machines — CADR, Lambda, 3600, MicroExplorer, Explorer — shared a set of properties that distinguished them from any contemporary machine outside the family.
+
+*Tagged hardware.* The machine's word size included tag bits identifying the type of the data in the word. A Lisp Machine fixnum was distinguishable from a pointer in hardware, with no software check needed at runtime. Type errors — passing a string to a function expecting a number, say — could be caught in a single instruction by the processor itself, rather than checked in software at every operation. This is the technical reason Lisp ran fast on Lisp Machines. It is also why no commercial processor since has caught up exactly: tagged data is not what general-purpose ISAs are optimized for.
+
+*Hardware garbage collection support.* The processor provided primitives that made generational, incremental garbage collection efficient. The CADR and 3600 architectures included read barriers — hardware checks on every pointer dereference that could trap into the GC if needed — that made it possible to collect the heap incrementally without pausing the user-facing program for long intervals. Modern garbage collectors, in JVMs and CLR, use software emulations of this idea (read barriers via memory-protection traps), with much more software overhead than the Lisp Machines paid in hardware.
+
+*Microcoded instruction sets.* The Lisp Machines did not have fixed instruction sets in the sense a modern processor does. The actual operations the processor performed were defined by microcode that the operating system loaded at boot. This had two consequences. One: the same hardware could be retargeted, by changing microcode, to run different languages or different versions of the same language. (TI's Explorer line, for instance, supported both a Lisp microcode load and a Prolog microcode load on the same hardware.) Two: improving the system meant *editing the microcode*, which the Lisp Machines exposed to the operating system in ways no general-purpose machine has since.
+
+*Integrated graphics from the start.* The Lisp Machines were bitmap-graphics machines from the CADR onward. The user interface was graphical, in an era when most commercial workstations were still character-oriented. The display was, in a meaningful sense, part of the machine rather than a peripheral. Window management, font rendering, and the system's notion of what an output device was were built into the OS, not bolted on.
+
+*Network from the start.* The CADR shipped with Chaosnet — a local-area protocol designed at the AI Lab — and later acquired TCP/IP. Networked file servers, network-aware remote procedure calls, and the assumption that machines lived in groups rather than alone were all baked into the system from early on. A 1981 Lisp Machine had a network experience that a 1985 commodity workstation did not.
+
+*Source-on-the-machine.* Every commercial Lisp Machine shipped with the source for itself. Reading the source for a system feature was how you found out what it did. Modifying it was a routine user activity. This was not a marketing differentiator — Symbolics did not advertise it as one — but it was a basic property of the system culture, inherited directly from ITS.
+
+## The hacker ethic of the era
+
+The Lisp Machines were built by, and for, a culture. The culture is hard to describe in 2026 because the closest thing the contemporary industry has to it — the open-source kernel community, perhaps — is a much more diffuse, more remote, more rule-governed phenomenon. The AI Lab culture was small, in person, and intensely opinionated.
+
+A few features of it bear on the Lisp Machine story.
+
+*The machine was the work.* You did not use the machine to write programs; you used the machine to *improve the machine*. A normal day involved tweaking the editor, redefining a debugger command, fixing a bug in a system function, or extending a library. The boundary between "users" and "developers" did not exist in the lab. Everyone was both. The Lisp Machine's architecture supported this because the source was on the machine and the running state was modifiable. The architecture supported it because the culture demanded it.
+
+*Tools were personal.* The space-cadet keyboards of the era had keys labeled Super, Hyper, Meta, Greek, Top, and Front, in addition to the standard modifier keys. Different users bound the modifiers differently. Editor commands were customized per user. The notion that a computer should present a uniform user interface to everyone was a commercial idea that arrived later; in the lab, every user's environment was personally tuned.
+
+*Documentation was secondary.* The primary way to find out what something did was to read its source. This had two effects. It produced programmers with an unusual fluency in reading other people's code, since the system itself was the documentation. It also produced programmers who, when they later moved to industry, had trouble understanding why their colleagues kept asking for manuals when the source was right there.
+
+*Brilliance was status currency.* The lab valued cleverness, technical depth, and the demonstrated ability to do things no one else could do. It did not particularly value team-building, mentorship of less-experienced engineers, or accommodation of users outside the in-group. This produced extraordinary individual work and famously poor handoffs to the outside world. The cultural pattern persisted into Symbolics, where it became a real factor in why the company could not adapt its product to less-specialized customers as the market shifted.
+
+*Software was free, in a sense that did not survive.* The lab's software was shared freely with anyone who could use it. There was no licensing apparatus. There was a strong sense that knowledge was meant to circulate. When Symbolics began enforcing source licenses on its commercial code in the early 1980s, the resulting conflict with Richard Stallman (then an AI Lab employee) was the precipitating cause of the GNU project. Stallman's stated motive was that the lab's software-sharing culture had been broken by the commercialization, and he wanted to rebuild a community where the culture could continue. The GNU project, and the free-software movement it eventually became, is the broadest surviving cultural descendant of the AI Lab — not a descendant of the Lisp Machines technically, but a descendant of the culture in which they were built.
+
+## What did and did not transfer
+
+When the Lisp Machines died, the people who had built them did not vanish. They moved into industry, academia, and a smaller set of niche tool vendors. The ideas they carried with them went into many places, in mostly diluted form.
+
+*The integrated development environment, in something like its modern sense, comes from the Lisp Machine.* Smalltalk had a parallel tradition, covered in Chapters 4 and 5; the two influenced each other. The idea that an editor, a compiler, a debugger, a runtime, and a documentation browser should be facets of a single environment rather than separate tools is not natively a Unix idea. Unix bolted IDEs on later. The Lisp Machines were built that way.
+
+*Hot code reloading*, in the sense that languages like Erlang, Clojure, and Elixir have it, descends directly from Lisp Machine practice. The principle that you can replace a function in a running system without restarting the system is one of the durable Lisp Machine ideas.
+
+*The condition system* of Common Lisp — the structured way of handling errors with restarts and handlers — was crystallized on the Lisp Machines and ported to other Lisp implementations. Ruby's exception system, Python's, Java's, are all weaker versions of what the Lisp Machine condition system provided in the mid-1980s.
+
+*Image-based development*, the idea that the running state is the primary artifact, did not survive into the mainstream. Smalltalk preserved it; the modern Pharo and Glamorous Toolkit communities preserve it; the Lisp world preserves it in REPL-based development with SLIME-like tooling. The general industry, though, runs on file-based development, where the source files are the primary artifact and the running state is something that gets reconstructed from them. The difference is sometimes hard to feel, because file-based tooling has gotten very good, but the underlying model is the Unix model, not the Lisp Machine model.
+
+*Hardware-supported tagged data and GC barriers* did not transfer. Modern processors execute managed languages quickly through clever JIT compilation and software techniques, not through hardware support for runtime type checking. The Lisp Machine's hardware bet did not survive even as architectural inspiration — when general-purpose hardware caught up, it did so by being better at general-purpose computation, not by becoming more like a Lisp Machine.
+
+## The ITS-shaped hole
+
+The deeper thing that did not transfer is the working culture. ITS, the Lisp Machines, and the AI Lab worked because they assumed a small, mutually-trusted community of users who were all also developers of the system. That assumption was a luxury of being a research lab in a single building with a few dozen people in it. As soon as you scale the user base, introduce adversarial users, network the machine to the internet, and ship the system to customers who have no interest in modifying it, the assumption breaks. The protection model has to come in. The privileged-administrator model has to come in. The line between users and developers has to come in. The result, even on a system that started as a Lisp Machine, would be a Lisp Machine that had grown a Unix-shaped scar tissue around all of its most pleasant properties.
+
+This is the part of the Lisp Machine story that is hardest to recover. The technical ideas — the image, the introspection, the integrated environment, the condition system — are still applicable. The cultural conditions under which they could be applied to an entire operating system, at the level of the operating system, are not coming back. We live in a world where the user is not the administrator, where machines are adversarial environments, where networks are full of attackers, where the assumption of mutual trust is unsupportable. The Lisp Machine's design assumed otherwise, and the assumption was both its strength and the reason it could not survive contact with the world it was about to enter.
+
+The next two chapters look at Smalltalk, which was a parallel and equally serious effort, with a different culture and a different set of failed and surviving ideas. Then the book turns to Plan 9, which was an attempt — by exactly the people who had built Unix — to do Unix correctly the second time. Each of these projects has its own version of the same story. A small group of strong designers built something extraordinary for an environment they understood, and then the environment changed faster than the system could adapt to it.
+
+Genera and the Lisp Machines are interesting in 2026 because they make visible what was lost. They are not interesting because they should come back as they were. They probably could not, and arguing they should is the kind of nostalgia the foreword warned against. What can come back, in some form, is the question they were trying to answer: *what does it feel like to use a computer where the system is an artifact you can inspect, modify, and live inside?* That question has not been retired. It has only been buried under thirty years of conventions that assume a different answer.
