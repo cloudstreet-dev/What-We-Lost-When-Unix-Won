@@ -1,3 +1,102 @@
-# ch12-smalltalk-now
+# Where the Smalltalk Ideas Live Now
 
-Stub.
+Smalltalk lost the operating-system fight, lost the application-platform fight, and lost the language-popularity fight to the C-family languages it had originally inspired. By any straightforward measure, Smalltalk in 2026 is a niche. The number of programmers earning a living in Smalltalk is small. The number of companies maintaining Smalltalk codebases in production is smaller. The likelihood that a graduate of a computer science program in 2026 has written a meaningful program in Smalltalk is essentially zero.
+
+And yet — almost every working programmer in 2026 uses Smalltalk ideas every day, in disguised forms, in systems that do not advertise the lineage. This chapter is an honest accounting of where those ideas survive: which ones made it through, which ones were watered down to the point of unrecognizability, and which ones are still being practiced in their original form by the small but stubborn communities that did not give up.
+
+## The living Smalltalk environments
+
+Chapter 5 covered Pharo and Glamorous Toolkit in some detail. The short version: there are working modern Smalltalk environments, they are maintained by small communities, and they preserve the image-based model and the Morphic UI substrate. A reader in 2026 who has never seen a Smalltalk environment can install Pharo in an evening and experience the original PARC sensibility on contemporary hardware.
+
+The community is real. Pharo has annual conferences (ESUG, the European Smalltalk User Group, has been meeting since 1993). Squeak has been continuously released since 1996 and is still the platform for several long-running research and education projects, including the etoys learning environment. Glamorous Toolkit has shipped multiple major releases since 2019 and has working users in research and small-team product development. The Smalltalk world is small but does not have the character of an end-stage project; it has the character of a stable minority practice.
+
+A second category, broader and less coherent, is the commercial Smalltalk that continued to ship after PARC. ParcPlace's VisualWorks, Digitalk's Smalltalk/V, IBM's VisualAge for Smalltalk — these were commercial products of the 1990s. VisualWorks continues today as Cincom Smalltalk; VisualAge for Smalltalk evolved into IBM/Instantiations VA Smalltalk. Both have customers, mostly in finance and healthcare, running production systems written in the 1990s and 2000s and maintained ever since. The annual budgets keeping these systems alive are modest by industry standards but real. The systems work. They are not famous because the customers do not benefit from being known to use Smalltalk; some of them, in fact, would prefer it was not widely known. The result is a quiet running base of production Smalltalk that does not show up in language popularity surveys but does show up in payrolls.
+
+The third category is the Smalltalk-influenced research and tooling work that continues to feed back into the mainstream. The Pharo team's research on object-centric debugging, on moldable inspectors, on remote development in image-based environments, has been picked up by various IDE projects elsewhere. The Glamorous Toolkit team's work on moldable development is one of the more interesting active research programs in software tools. Some of this work will, over the next decade, propagate into mainstream IDEs in the same way that earlier Smalltalk research did into Eclipse and IntelliJ.
+
+## Self and the JIT lineage
+
+The most consequential post-Smalltalk research project, in terms of where its ideas ended up, was Self. Self started at Xerox PARC in 1986 and continued at Sun Microsystems through the 1990s. It was, in technical terms, a Smalltalk variant — same image model, same live environment, same Morphic UI heritage — with one major change: Self was *prototype-based* rather than *class-based*. Objects inherited from other objects directly rather than from classes. The class concept did not exist in Self; what other languages would call a class was just another object that happened to be referenced by other objects as their parent.
+
+Self never had more than a few hundred serious users. As a language, it was a research curiosity. As a project, it was something more important: Self was where modern just-in-time compilation for dynamic languages got invented.
+
+The Self project's compiler, designed by Urs Hölzle, David Ungar, and Lars Bak, was the first practical JIT compiler for a dynamic language. Self was a fully late-bound language — every method call could go anywhere, every variable was dynamically typed — and the conventional wisdom was that such languages could not be efficiently compiled. The Self compiler proved that they could. It introduced techniques — type feedback, polymorphic inline caches, speculative inlining, deoptimization on type mismatch — that became the standard toolkit for compiling dynamic languages efficiently.
+
+Sun shut down the Self project in the late 1990s, but the people went on to use the same techniques in other places. Lars Bak and Urs Hölzle worked on HotSpot, the just-in-time compiler that made Java performance competitive with C++ for many workloads. Lars Bak later led the team at Google that built V8, the JavaScript engine that made web applications a tolerable platform for serious software. Both of these projects descend from the Self work. The JIT-compiled, garbage-collected, dynamic-language runtimes that power most of the software people use in 2026 — the JVM, the CLR, V8, Node.js, the various Python and Ruby JITs — are working with techniques that came directly out of Smalltalk research and were proven on Self.
+
+This is one of the cleaner cases of an alternative tradition's ideas surviving in dilution. Java in 1995 looked, on the surface, like an industry response to C++'s complexity. Java was actually, in its semantics, a Smalltalk-influenced language with C-like syntax: garbage collected, dynamically dispatched, with a single inheritance hierarchy descending from a root Object class, with reflection, with introspection at runtime. It was Smalltalk for people who would not adopt Smalltalk. The wrapper was different; the contents were largely the same.
+
+Similarly, JavaScript began life as a Self-inspired prototype-based language with a syntax designed to look like Java to make it palatable. The prototype-based object model that JavaScript uses is directly from Self. The decision to make objects mutable bags of properties, with method dispatch resolved at runtime, is a Self design. The fact that modern JavaScript has class syntax now is a 2015-era cosmetic addition on top of the underlying prototype-based system; the prototypes are still there.
+
+This means that, in the most-used programming language in the world — JavaScript, with all of the browser-side and server-side software that runs in it — the underlying semantics are descended from a research project in late-1980s Stanford that had a few hundred users. The Self lineage is everywhere. Most JavaScript programmers do not know it is there. They do not need to.
+
+## Object-oriented programming as dilution
+
+The most-discussed Smalltalk-to-mainstream transfer is, of course, object-oriented programming as an idiom. C++ from the 1980s, Java from the 1990s, C# from the 2000s, Ruby and Python with their OO features, Swift and Kotlin and Dart and the various mobile-platform languages of the 2010s and 2020s — all of these are "object-oriented" in a sense that traces, through documentation lineage, back to Smalltalk.
+
+The dilution is, as Chapter 4 covered, substantial. The mainstream OO languages preserve the *syntactic* surface of Smalltalk — classes, methods, inheritance, polymorphism — while dropping or compromising most of what Kay considered essential. Message-passing as a worldview is gone, replaced by static-dispatch method calls with vtable lookups. Encapsulation, in many of the languages, is a convention rather than an enforcement. Late binding is muted; many of these languages prefer compile-time-resolved calls when they can manage them. The systems built in these languages are not Smalltalk systems written in different syntax. They are imperative-language systems with object-shaped wrappers.
+
+This dilution is, again, the price of mass adoption. The Smalltalk worldview was hard to learn. The OO surface was easier to learn. The industry adopted the surface and left the worldview behind. The result is languages and systems that have most of the engineering benefits of Smalltalk's encapsulation while keeping the performance and tooling familiarity of static languages. The trade is, in industrial-engineering terms, reasonable. The trade is also one of the larger cases of "the alternative had to be flattened to fit the market."
+
+The exceptions are interesting. Ruby is the mainstream language whose semantics are closest to Smalltalk's. Yukihiro Matsumoto, Ruby's designer, has explicitly cited Smalltalk as the main influence and aimed to produce a language with Smalltalk's openness and reflective power in a syntax that Perl programmers could pick up. Ruby has, structurally, the things Smalltalk has: pervasive method dispatch, runtime introspection of every object's class and methods, the ability to reopen classes and add methods at runtime, blocks as first-class arguments to methods. The Rails framework that put Ruby on the map made heavy use of these properties. Modern Ruby remains the most Smalltalk-feeling mainstream language; if you have programmed in Ruby and never in Smalltalk, you have used about 70% of what Smalltalk gives you, in a more conventional file-based deployment model.
+
+Smalltalk's other strong mainstream descendant is Objective-C, which Brad Cox and Tom Love designed in the 1980s specifically to add Smalltalk-style message passing to C. NeXTSTEP (and later macOS and iOS through the 2010s) was built in Objective-C; many of the open-source frameworks that shipped in those systems used the message-passing model from Smalltalk in ways that conventional OO languages of the era could not. Swift, which has been replacing Objective-C inside Apple's platforms, is more conventional but inherits some of the Smalltalk-via-Objective-C sensibility about reflection and dynamic dispatch.
+
+## Jupyter as a watered-down image
+
+The other Smalltalk-influenced surface that has had considerable contemporary success is the notebook environment. Jupyter, originally IPython, is the most visible example, but the genre includes Mathematica notebooks (older than Jupyter, by a lot), Observable, the various R Markdown environments, and the document-based interactive environments that have become standard in data science and machine learning workflows.
+
+A Jupyter notebook is, structurally, a degraded version of the Smalltalk image model. The notebook contains a sequence of cells. Each cell holds code, prose, or output. The user runs cells against a long-running kernel process that maintains a persistent execution state. The user can re-run cells in any order, modify their contents, see results inline, and save the entire document — code, prose, and output together — as a file.
+
+The Smalltalk inheritance here is twofold. The image-like persistence — the running kernel state outliving the individual cell executions — is the substantive borrowing. The notion that a document can contain executable code interleaved with prose and results is from Smalltalk's project notebooks and Mathematica's notebooks before that, both of which descend from earlier ideas about literate programming and active documents that PARC researchers had been working on since the late 1970s.
+
+The dilution from Smalltalk to Jupyter is substantial. The notebook kernel has the image-style persistent state, but the notebook surface treats that state as a side effect of running cells rather than as the primary artifact. The cells contain text representations of code, which can drift out of sync with the kernel's idea of the program's state — a common source of bugs in long-lived notebooks, where re-running cells in a different order produces different results than the cells suggest. The Smalltalk image was authoritative; the Jupyter cell sequence is a hint.
+
+The notebook genre's success — across data science, scientific computing, and increasingly other technical fields — is evidence that the *user interface for image-based computing* has real value. The dilution is in the implementation. A more Smalltalk-faithful notebook environment would treat the kernel state as primary and the cell sequence as one of many possible projections of that state. Some of the more recent notebook environments — Observable, for instance — push in this direction by making cells reactive functions of each other rather than imperative scripts. Glamorous Toolkit's *playgrounds* are another version of the same idea, with the Smalltalk-faithful semantics preserved.
+
+The general point is that the notebook genre is what happens when the image idea gets attractive enough to be ported into the dominant computing paradigm. The port is partial. The use is real. The Smalltalk-style image is the parent, even when the children do not know who their parents were.
+
+## Direct-manipulation UI and the Morphic afterlife
+
+Morphic itself, as a substrate, has not won. Most operating-system user interfaces in 2026 are not Morphic. The mainstream is a stack of widget toolkits — Win32, Cocoa, Qt, GTK, the various web frameworks like React and Vue — that present applications as fixed compositions of components that the user can interact with through prescribed gestures.
+
+Direct manipulation as a principle, however, has won. The idea that the user should grab objects on screen, manipulate them as physical-feeling entities, see immediate visual feedback, and have undo as a first-class operation, is so embedded in contemporary UI design that it does not need defending. The Smalltalk tradition pushed direct manipulation harder and earlier than most competing systems, and the influence is visible in every drag-and-drop interface, every modern touch UI, every interactive design tool.
+
+The direction *further* than mainstream UI has been willing to go — the direction Morphic and the Self UI pushed, where every visible thing is a live object that can be inspected and modified at runtime — has been adopted only in research environments and developer tools. The contemporary user interfaces of consumer applications are direct-manipulation on the surface and rigid underneath; the user can move the button but not redefine what the button does. Smalltalk's vision was that even the second operation should be available. Most users do not need the second operation, and most application developers do not want to support it. The vision lives in development environments where the user *is* a developer.
+
+This is the pattern again. The mainstream takes the part of the radical idea that mass users want — direct manipulation on the surface — and leaves behind the part that radical users want — direct manipulation all the way down. The mass adoption is real progress over the previous generation of UIs. The radical option is still there for the people who want it, in environments like Pharo and GT, with much smaller user bases.
+
+## The harder reckoning
+
+The pattern from the previous chapters and this one is becoming visible. The Smalltalk ideas survive in three forms:
+
+*Diluted into the mainstream*, where they have become so ambient that the lineage is not visible. Object-oriented programming as a paradigm. Just-in-time compilation for dynamic languages. Garbage collection as a system service. Reflection as a language feature. Direct manipulation as a UI principle. The image-like persistence in Jupyter notebooks. All of these are now present in everyone's daily computing experience. None of them are at the strength PARC originally proposed them, but the weakened forms are real and useful.
+
+*Preserved in their original form* in the small Smalltalk environments — Pharo, Squeak, Glamorous Toolkit, Cuis, the commercial Smalltalks. These are working systems with active communities. They are not going to take over the industry. They are not, however, going away. The full Smalltalk experience is available to anyone who wants it in 2026, with modern hardware and modern Git integration.
+
+*Carried forward by individual researchers and engineers* who absorbed the ideas at one stage and are pushing them somewhere else. Glamorous Toolkit is the most visible example, but the broader research community in human-computer interaction, in moldable tools, in live programming, has Smalltalk ideas at its center. The work continues. It just continues in pockets, on small budgets, with researchers whose names are not famous outside their fields.
+
+The harder reckoning is that the *integration* the Smalltalk tradition produced — the integration of language, runtime, environment, UI, and user — has not transferred. What transferred were the *pieces*. The pieces are useful in their new contexts. The integration is gone.
+
+A 2026 software developer can have, individually:
+
+- A garbage-collected language (Python, Ruby, JavaScript, Java, C#, Go, Kotlin, Swift, almost anything modern).
+- A live REPL (in any of the above, with various levels of completeness).
+- A debugger that lets you examine state at a breakpoint and continue.
+- Hot code reloading in some frameworks (Phoenix, Rails in dev mode, web bundlers with HMR).
+- Reflection on objects at runtime.
+- Direct manipulation in the editor (modern IDEs with refactoring tools).
+- Notebook-style persistent state for exploratory work (Jupyter, Observable).
+- Documentation-as-data via reflection-based introspection (the documentation strings, type hints, IDE tooltips).
+
+What they cannot have, in a single integrated environment, on top of their host operating system, with their main programming language, on the hardware they bought from a normal vendor, is *all of these at once*, integrated, with the same fluency, in the same workspace. That integration was what the Lisp Machines and the Smalltalk environments offered. The integration is, for the mainstream stack, structurally unavailable. You can get close in Emacs for some kinds of work. You can get closer in Pharo if you accept the cost of leaving the mainstream stack behind. You cannot get there in VS Code editing a Python file on macOS, no matter how good the tooling gets, because the underlying architecture does not support it.
+
+This is the part of the loss that Chapter 13 will return to. The diluted forms are mostly enough for most work. The integration is gone, and the gone-ness is structural, and getting it back would require either replacing the substrate or building a guest environment that, like Pharo, lives inside the substrate and pays its own integration cost privately.
+
+## What this chapter is for
+
+The function of this chapter, like the previous one, is to take the loose anxiety that runs through the book — "we lost something" — and put concrete inventory items on the page. Smalltalk lost. Smalltalk's ideas survived, mostly in pieces, mostly in dilution, mostly in mainstream languages whose users do not know the lineage. The pieces are doing real work. The whole — the integrated Smalltalk environment as PARC built it — is available, in Pharo and its siblings, for anyone who wants to use it.
+
+That is the answer to "what happened to Smalltalk?" The answer is more interesting than "it died." It is closer to "it diffused, with the most acceptable parts becoming standard and the most distinctive parts surviving in small enclaves." This is a normal outcome for a research tradition. It is not, contrary to some Smalltalk advocates' framing, a tragedy. It is the same shape of outcome that has happened to many research programs in computing, and it leaves the door open for further transmission of the unflattened ideas, by people who are willing to pay the cost of carrying them.
+
+The last full chapter takes the broader question that this chapter and the previous one have been circling around: in 2026, which of the things we lost when Unix won are recoverable, which are gone for reasons that have to do with the world rather than Unix's winning, and which are simply not coming back? The book has built up enough context, by now, to answer this honestly. The closing chapter then returns to the thesis.
